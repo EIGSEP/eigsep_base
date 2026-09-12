@@ -76,7 +76,7 @@ def test_frequency_grid():
 
 def test_freqs_matches_calc_freqs_dfreq():
     """The bundled grid must agree with the runtime header-based one."""
-    from eigsep_base.utils import calc_freqs_dfreq
+    from eigsep_base.io import calc_freqs_dfreq
 
     freqs, dfreq = calc_freqs_dfreq(const.SAMPLE_RATE, const.NCHAN)
     assert np.array_equal(freqs, const.FREQS)

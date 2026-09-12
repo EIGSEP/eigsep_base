@@ -33,9 +33,34 @@ from pathlib import Path
 import h5py
 import numpy as np
 
-from .utils import calc_freqs_dfreq, calc_inttime, calc_times
-
 logger = logging.getLogger(__name__)
+
+
+# -----------------------------------------------------------------
+# Correlator bookkeeping (moved from utils.py during consolidation)
+# -----------------------------------------------------------------
+
+# The SNAP ADC delivers ADC_DEMUX samples per FPGA fabric clock
+# (demux-2: 500 Msps ADC, 250 MHz fabric). Registers that count
+# "clocks" (corr_acc_len, sync uptime) tick at sample_rate / ADC_DEMUX.
+ADC_DEMUX = 2
+
+
+def calc_freqs_dfreq(sample_rate_Hz, nchan):
+    """Return frequencies and channel width for real-sampled spectra."""
+    dfreq = sample_rate_Hz / (2 * nchan)
+    freqs = np.arange(nchan) * dfreq
+    return freqs, dfreq
+
+
+def calc_inttime(sample_rate_Hz, acc_len, acc_bins=ADC_DEMUX):
+    """Calculate time per integration [s] from sample_freq and acc_len."""
+    return 1 / sample_rate_Hz * acc_len * acc_bins
+
+
+def calc_times(acc_cnt, inttime, sync_time):
+    """Calculate integration times [s] from acc_cnt using sync time."""
+    return acc_cnt * inttime + sync_time
 
 __all__ = [
     # corr layout
