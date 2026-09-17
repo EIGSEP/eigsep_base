@@ -138,3 +138,86 @@ def test_round_trip_through_to_unix_time():
     assert datetime.fromtimestamp(unix, tz=timezone.utc).replace(
         tzinfo=None
     ) == dt
+
+
+# --- format_time / parse_filename_time / filename_unix ---------------
+# Ported verbatim from eigsep_data/tests/test_clock.py when
+# eigsep_data.clock's implementation moved here (2026-09-17), so the
+# behaviour the metadata index relies on is pinned at its new home.
+
+from eigsep_base.time import (  # noqa: E402
+    filename_unix,
+    format_time,
+    parse_filename_time,
+)
+
+
+class TestFormatTime:
+    def test_renders_utc_by_default(self):
+        # 1784321280.0 == 2026-07-17 20:48:00Z (verified, not assumed).
+        assert format_time(1784321280.0) == "2026-07-17 20:48:00"
+
+    def test_renders_mountain_for_field_notes(self):
+        # The legacy +3600 existed so timestamps matched watches in
+        # Utah. That is a rendering job, not a correction to the data.
+        # MDT is UTC-6, so 20:48Z is 14:48 local.
+        assert (
+            format_time(1784321280.0, tz="America/Denver")
+            == "2026-07-17 14:48:00"
+        )
+
+    def test_accepts_an_array(self):
+        out = format_time(np.array([1784321280.0, 1784321340.0]))
+        assert out == ["2026-07-17 20:48:00", "2026-07-17 20:49:00"]
+
+
+class TestParseFilenameTime:
+    def test_z_suffix_is_utc(self):
+        t = parse_filename_time("corr_20260717_204800Z.h5")
+        assert t.tzinfo is not None
+        assert t.timestamp() == 1784321280.0
+
+    def test_z_suffix_wins_over_an_explicit_tz(self):
+        # The suffix is the producer's own statement of the zone; a
+        # caller's guess must not override it.
+        t = parse_filename_time(
+            "corr_20260717_204800Z.h5", tz="America/Los_Angeles"
+        )
+        assert t.timestamp() == 1784321280.0
+
+    def test_no_suffix_defaults_to_pacific(self):
+        # Before eigsep_observing c4ef1ee the writer used a naive
+        # datetime.now(), so deployment 1-4 filenames are Pacific wall
+        # clock. September is PDT, UTC-7.
+        t = parse_filename_time("corr_20250922_160500.h5")
+        assert t.utcoffset().total_seconds() == -7 * 3600
+        assert (t.hour, t.minute) == (16, 5)
+
+    def test_explicit_tz_is_honoured_without_suffix(self):
+        t = parse_filename_time("corr_20250922_160500.h5", tz="America/Denver")
+        assert t.utcoffset().total_seconds() == -6 * 3600
+
+    def test_disambiguating_suffix_still_parses(self):
+        t = parse_filename_time("corr_20260712_235712Z-1.h5")
+        assert t.tzinfo == timezone.utc
+
+    def test_unparseable_name_raises(self):
+        with pytest.raises(ValueError):
+            parse_filename_time("not_a_corr_file.h5")
+
+    def test_naive_counterpart_agrees_on_the_stamp(self):
+        # parse_time_from_name is the same stamp without a zone; the
+        # two must never disagree about the wall-clock digits.
+        naive = parse_time_from_name("corr_20260717_204800Z.h5")
+        aware = parse_filename_time("corr_20260717_204800Z.h5")
+        assert naive.replace(tzinfo=timezone.utc) == aware
+
+
+class TestFilenameUnix:
+    def test_matches_parse(self):
+        assert filename_unix("corr_20260717_204800Z.h5") == 1784321280.0
+
+    def test_nan_on_garbage(self):
+        # The metadata index calls this on every file it globs; a stray
+        # file must yield NaN, not an exception.
+        assert np.isnan(filename_unix("notes.txt"))
