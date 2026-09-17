@@ -17,7 +17,8 @@ io
 const
     Physical constants and EIGSEP instrument/site parameters.
 time
-    Time parsing (``to_unix_time``, ``parse_time_from_name``).
+    Time handling (``to_unix_time``, ``parse_time_from_name``,
+    ``parse_filename_time``, ``filename_unix``, ``format_time``).
 """
 
 __version__ = "0.1.0"
@@ -30,7 +31,12 @@ from . import time
 # else is reached through its submodule, which keeps it obvious where a
 # function came from when it turns up in someone else's code.
 from .io import read_hdf5, write_hdf5
-from .time import to_unix_time, parse_time_from_name
+from .time import (
+    to_unix_time,
+    parse_time_from_name,
+    parse_filename_time,
+    format_time,
+)
 
 __all__ = [
     "__version__",
@@ -41,4 +47,6 @@ __all__ = [
     "write_hdf5",
     "to_unix_time",
     "parse_time_from_name",
+    "parse_filename_time",
+    "format_time",
 ]
