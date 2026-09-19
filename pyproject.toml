@@ -32,7 +32,7 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-cov",
-    "ruff",
+    "ruff==0.16.8",  # keep in sync with .github/workflows/ci.yml
 ]
 
 [tool.setuptools.packages.find]
@@ -50,3 +50,9 @@ extend-ignore = ["E203"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/*/__init__.py" = ["F401"]
+# io's __all__ is grouped by topic with section comments.
+"src/eigsep_base/io.py" = ["RUF022"]
+# time.py parses naive stamps and attaches the zone explicitly; tests
+# deliberately exercise naive-datetime handling.
+"src/eigsep_base/time.py" = ["DTZ007"]
+"tests/*" = ["DTZ001"]

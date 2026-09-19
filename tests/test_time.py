@@ -6,11 +6,10 @@ import numpy as np
 import pytest
 
 from eigsep_base.time import (
+    _parse_time_from_name,
     parse_time_from_name,
     to_unix_time,
-    _parse_time_from_name,
 )
-
 
 # --- to_unix_time ---------------------------------------------------
 
@@ -142,7 +141,7 @@ def test_round_trip_through_to_unix_time():
 # eigsep_data.clock's implementation moved here (2026-09-17), so the
 # behaviour the metadata index relies on is pinned at its new home.
 
-from eigsep_base.time import (  # noqa: E402
+from eigsep_base.time import (
     filename_unix,
     format_time,
     parse_filename_time,

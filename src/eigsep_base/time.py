@@ -15,21 +15,21 @@ with the zone-aware filename handling. Consolidated here 2026-09-17
 is now a thin re-export of this module.
 """
 
+import re
 from datetime import datetime, timezone
 from pathlib import Path
-import re
 from zoneinfo import ZoneInfo
 
 import numpy as np
 
 __all__ = [
-    "to_unix_time",
-    "parse_time_from_name",
-    "parse_filename_time",
-    "filename_unix",
-    "format_time",
     "FILENAME_TZ",
     "LEGACY_FILENAME_TZ",
+    "filename_unix",
+    "format_time",
+    "parse_filename_time",
+    "parse_time_from_name",
+    "to_unix_time",
 ]
 
 #: Timezone the *filename* of each deployment was stamped in. Before

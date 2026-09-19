@@ -42,7 +42,7 @@ from eigsep_base import io
 
 data, header, metadata = io.read_hdf5("corr_20260715_172825Z.h5")
 data, cal, header, metadata = io.read_s11_file("ants11_20260715.h5")
-header, data = io.read_eig_file("legacy.eig")     # pre-HDF5 archive
+header, data = io.read_eig_file("legacy.eig")  # pre-HDF5 archive
 ```
 
 ## Deviations from the originals
