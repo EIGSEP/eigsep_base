@@ -62,6 +62,7 @@ def calc_times(acc_cnt, inttime, sync_time):
     """Calculate integration times [s] from acc_cnt using sync time."""
     return acc_cnt * inttime + sync_time
 
+
 __all__ = [
     # corr layout
     "data_shape",
@@ -693,9 +694,9 @@ def read_hdf5(fname):
             # Reconstruct complex from int32 (re, im) storage.
             # Old files store crosses as complex128 (returned as-is).
             if arr.ndim >= 2 and arr.shape[-1] == 2 and arr.dtype.kind == "i":
-                arr = arr[..., 0].astype(np.float64) + 1j * arr[
-                    ..., 1
-                ].astype(np.float64)
+                arr = arr[..., 0].astype(np.float64) + 1j * arr[..., 1].astype(
+                    np.float64
+                )
             data[k] = arr
         # header
         header_grp = f["header"]
@@ -1901,7 +1902,7 @@ def unpack_data(fh_buf, h, nspec=-1, skip=0):
             buf = fh.read(nspec * integration_len)
     data = {
         p: [
-            buf[b + pair_offs[i]: b + pair_offs[i + 1]]
+            buf[b + pair_offs[i] : b + pair_offs[i + 1]]
             for b in range(0, len(buf), integration_len)
         ]
         for i, p in enumerate(h["pairs"])
