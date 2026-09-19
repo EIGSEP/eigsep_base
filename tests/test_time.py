@@ -35,9 +35,7 @@ def test_naive_datetime_is_utc():
 
 def test_aware_datetime_respects_offset():
     utc = datetime(2026, 7, 17, 6, 0, 0, tzinfo=timezone.utc)
-    plus2 = datetime(
-        2026, 7, 17, 8, 0, 0, tzinfo=timezone(timedelta(hours=2))
-    )
+    plus2 = datetime(2026, 7, 17, 8, 0, 0, tzinfo=timezone(timedelta(hours=2)))
     assert to_unix_time(plus2) == to_unix_time(utc)
 
 
@@ -51,27 +49,25 @@ def test_aware_datetime_respects_offset():
     ],
 )
 def test_equivalent_string_formats(text):
-    expected = datetime(
-        2026, 7, 17, 6, 0, 0, tzinfo=timezone.utc
-    ).timestamp()
+    expected = datetime(2026, 7, 17, 6, 0, 0, tzinfo=timezone.utc).timestamp()
     assert to_unix_time(text) == expected
 
 
 def test_single_digit_month_and_hour():
     """The documented '2026-7-17 6:00:00' shorthand."""
-    expected = datetime(
-        2026, 7, 17, 6, 0, 0, tzinfo=timezone.utc
-    ).timestamp()
+    expected = datetime(2026, 7, 17, 6, 0, 0, tzinfo=timezone.utc).timestamp()
     assert to_unix_time("2026-7-17 6:00:00") == expected
 
 
 def test_minute_and_date_only_formats():
-    assert to_unix_time("2026-07-17 06:00") == datetime(
-        2026, 7, 17, 6, 0, tzinfo=timezone.utc
-    ).timestamp()
-    assert to_unix_time("2026-07-17") == datetime(
-        2026, 7, 17, tzinfo=timezone.utc
-    ).timestamp()
+    assert (
+        to_unix_time("2026-07-17 06:00")
+        == datetime(2026, 7, 17, 6, 0, tzinfo=timezone.utc).timestamp()
+    )
+    assert (
+        to_unix_time("2026-07-17")
+        == datetime(2026, 7, 17, tzinfo=timezone.utc).timestamp()
+    )
 
 
 def test_surrounding_whitespace_is_stripped():
@@ -135,9 +131,10 @@ def test_private_alias_is_the_same_function():
 def test_round_trip_through_to_unix_time():
     dt = parse_time_from_name("corr_20260715_172825Z.h5")
     unix = to_unix_time(dt)
-    assert datetime.fromtimestamp(unix, tz=timezone.utc).replace(
-        tzinfo=None
-    ) == dt
+    assert (
+        datetime.fromtimestamp(unix, tz=timezone.utc).replace(tzinfo=None)
+        == dt
+    )
 
 
 # --- format_time / parse_filename_time / filename_unix ---------------

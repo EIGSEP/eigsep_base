@@ -1,0 +1,48 @@
+name: Build and test Python package
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8.3.2
+      - name: Lint with ruff
+        run: |
+          uvx ruff check .
+          uvx ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+          python-version: ${{ matrix.python-version }}
+      - name: Test with pytest
+        run: >-
+          uv run --extra dev pytest
+          --cov=eigsep_base --cov-report=xml
+          --junitxml=junit.xml
+      - name: Upload coverage report
+        if: github.actor != 'dependabot[bot]'
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          # Coverage upload is best-effort; don't red-X passing tests.
+          fail_ci_if_error: false
+      - name: Upload test results
+        if: ${{ !cancelled() && github.actor != 'dependabot[bot]' }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: "test_results"
+          fail_ci_if_error: false
