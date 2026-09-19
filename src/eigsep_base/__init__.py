@@ -23,30 +23,28 @@ time
 
 __version__ = "0.1.0"
 
-from . import const
-from . import io
-from . import time
+from . import const, io, time
 
 # The handful of names that are useful at the top level. Everything
 # else is reached through its submodule, which keeps it obvious where a
 # function came from when it turns up in someone else's code.
 from .io import read_hdf5, write_hdf5
 from .time import (
-    to_unix_time,
-    parse_time_from_name,
-    parse_filename_time,
     format_time,
+    parse_filename_time,
+    parse_time_from_name,
+    to_unix_time,
 )
 
 __all__ = [
     "__version__",
     "const",
-    "io",
-    "time",
-    "read_hdf5",
-    "write_hdf5",
-    "to_unix_time",
-    "parse_time_from_name",
-    "parse_filename_time",
     "format_time",
+    "io",
+    "parse_filename_time",
+    "parse_time_from_name",
+    "read_hdf5",
+    "time",
+    "to_unix_time",
+    "write_hdf5",
 ]

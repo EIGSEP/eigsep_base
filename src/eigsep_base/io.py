@@ -846,7 +846,7 @@ def read_s11_file(fname):
     """
     data, header, metadata = read_hdf5(fname)
     # filter out calibration data keys
-    cal_keys = [k for k in data.keys() if k.startswith("cal:")]
+    cal_keys = [k for k in data if k.startswith("cal:")]
     cal_data = {}
     for k in cal_keys:
         cal_data[k[4:]] = data.pop(k)  # remove 'cal:' prefix
@@ -1488,7 +1488,7 @@ def _avg_rfswitch_metadata(value):
     states = [v.get("sw_state_name") for v in value]
     if "error" in status_list:
         return "UNKNOWN"
-    unique = set(s for s in states if s is not None)
+    unique = {s for s in states if s is not None}
     if len(unique) > 1:
         return "UNKNOWN"
     return states[0] if states else None
@@ -1691,7 +1691,7 @@ def _avg_sensor_values(value, schema=None, *, app_name=""):
             floats = [s for s in survivors if isinstance(s, float)]
             try:
                 avg[data_key] = float(np.mean(floats)) if floats else None
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Could not average key '{data_key}': {e}")
                 avg[data_key] = None
         elif typ is int:
@@ -1837,9 +1837,9 @@ def read_header(filename):
         h["pairs"], h["acc_bins"], h["nchan"], h["dtype"]
     )[-1]
     h["nspec"] = (filesize - h["data_start"]) // intlen
-    assert h["nspec"] == len(
-        h["acc_cnt"]
-    ), "Check file size matches integration cnts"
+    assert h["nspec"] == len(h["acc_cnt"]), (
+        "Check file size matches integration cnts"
+    )
     h["freqs"], h["dfreq"] = calc_freqs_dfreq(h["sample_rate"], h["nchan"])
     h["inttime"] = inttime = calc_inttime_eig(h)
     h["times"] = calc_times(h["acc_cnt"], inttime, h["sync_time"])
@@ -1916,7 +1916,7 @@ def unpack_data(fh_buf, h, nspec=-1, skip=0):
 
 def pack_data(data, h):
     """Encode a dict of per-pair arrays as the file's data section."""
-    ntimes = list(data.values())[0].shape[0]
+    ntimes = next(iter(data.values())).shape[0]
     buf = [
         pack_raw_data(data[p][i], dtype=h["dtype"])
         for i in range(ntimes)
