@@ -22,11 +22,14 @@ time
 rotations
     The antenna mount rotation, the one pointing convention:
     body -> ENU is ``Rz(psi) Rx(el) Rz(az)`` (a roll mount).
+spectral_basis
+    ``SpectralBasis``: a frequency basis (real or complex) with projection,
+    resampling, SVD construction and npz persistence.
 """
 
 __version__ = "0.1.0"
 
-from . import const, io, rotations, time
+from . import const, io, rotations, spectral_basis, time
 
 # The handful of names that are useful at the top level. Everything
 # else is reached through its submodule, which keeps it obvious where a
@@ -48,6 +51,7 @@ __all__ = [
     "parse_time_from_name",
     "read_hdf5",
     "rotations",
+    "spectral_basis",
     "time",
     "to_unix_time",
     "write_hdf5",
